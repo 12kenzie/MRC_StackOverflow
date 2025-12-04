@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stack Overflow</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: auto;
+      font-family: 'Rajdhani', 'Orbitron', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: auto;
+      background: linear-gradient(315deg, rgba(30, 0, 60, 1) 0%, rgba(50, 20, 100, 1) 25%, rgba(20, 50, 120, 1) 50%, rgba(60, 20, 100, 1) 75%, rgba(30, 0, 60, 1) 100%);
+      animation: gradient 15s ease infinite;
+      background-size: 400% 400%;
+      background-attachment: fixed;
+      padding: 1rem;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        repeating-linear-gradient(0deg, rgba(0, 255, 255, 0.03) 0px, transparent 1px, transparent 2px, rgba(0, 255, 255, 0.03) 3px),
+        repeating-linear-gradient(90deg, rgba(0, 255, 255, 0.03) 0px, transparent 1px, transparent 2px, rgba(0, 255, 255, 0.03) 3px),
+        repeating-linear-gradient(45deg, transparent 0px, transparent 10px, rgba(255, 0, 255, 0.03) 10px, rgba(255, 0, 255, 0.03) 11px),
+        repeating-linear-gradient(-45deg, transparent 0px, transparent 10px, rgba(0, 255, 255, 0.03) 10px, rgba(0, 255, 255, 0.03) 11px);
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 0%;
+      }
+
+      50% {
+        background-position: 100% 100%;
+      }
+
+      100% {
+        background-position: 0% 0%;
+      }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      background: rgba(10, 10, 30, 0.85);
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+      z-index: -1;
+      filter: blur(10px);
+      opacity: 0.3;
+      animation: glow 3s linear infinite;
+    }
+
+    @keyframes glow {
+
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #00ffff;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.5);
+      letter-spacing: 3px;
+    }
+
+    .header p {
+      font-size: 1.125rem;
+      color: #a0d8ff;
+      text-shadow: 0 0 10px rgba(160, 216, 255, 0.5);
+    }
+
+    .scoreboard {
+      background: rgba(10, 10, 30, 0.85);
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-radius: 15px;
+    }
+
+    .scoreboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .scoreboard-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #00ffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .reset-btn {
+      background: #dc2626;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      border-radius: 5px;
+    }
+
+    .reset-btn:hover {
+      background: #b91c1c;
+    }
+
+    .teams {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .team {
+      background: #f8fafc;
+      padding: 1.5rem;
+      border-radius: 5px;
+      box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    }
+
+    .team h3 {
+      font-size: 1.125rem;
+      font-weight: bold;
+      color: #334155;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .team-score {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #1e293b;
+      margin-bottom: 1rem;
+    }
+
+    .team-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .team-buttons button {
+      flex: 1;
+      padding: 0.5rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+
+    .plus-btn {
+      background: #16a34a;
+      border-radius: 5px;
+    }
+
+    .plus-btn:hover {
+      background: #15803d;
+      border-radius: 5px;
+    }
+
+    .minus-btn {
+      background: #dc2626;
+      border-radius: 5px;
+    }
+
+    .minus-btn:hover {
+      background: #b91c1c;
+
+    }
+
+    .game-stats {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #334155;
+    }
+
+    .game-stats span:first-child {
+      font-weight: 600;
+    }
+
+    .game-stats span:last-child {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .difficulty-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .difficulty-card {
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: none;
+      cursor: pointer;
+      color: white;
+      text-align: center;
+      border-radius: 5px;
+    }
+
+    .difficulty-card:hover {
+      opacity: 0.9;
+    }
+
+    .difficulty-card.easy {
+      background: #22c55e;
+    }
+
+    .difficulty-card.medium {
+      background: #eab308;
+    }
+
+    .difficulty-card.hard {
+      background: #ef4444;
+    }
+
+    .difficulty-card.bonus {
+      background: #a855f7;
+    }
+
+    .difficulty-card svg {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+
+    .difficulty-card h3 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-transform: capitalize;
+      margin-bottom: 0.5rem;
+    }
+
+    .difficulty-card p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .difficulty-card .used {
+      font-size: 0.875rem;
+      opacity: 0.75;
+      margin-top: 0.5rem;
+    }
+
+    .instructions {
+      background: rgba(10, 10, 30, 0.85);
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 15px;
+    }
+
+    .instructions h3 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #00ffff;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+    }
+
+    .instructions p {
+      color: #a0d8ff;
+      line-height: 1.8;
+    }
+
+    .instructions li {
+      margin-bottom: 0.5rem;
+    }
+
+    .number-selection {
+      min-height: 100vh;
+    }
+
+    .number-header {
+      margin-bottom: 1.5rem;
+      background: rgba(10, 10, 30, 0.85);
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 15px;
+    }
+
+    .back-btn {
+      background: #334155;
+      color: white;
+      padding: 0.5rem 1.25rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      border-radius: 5px;
+    }
+
+    .back-btn:hover {
+      background: #475569;
+    }
+
+    .difficulty-title {
+      color: white;
+      font-size: 1.875rem;
+      font-weight: bold;
+      text-transform: capitalize;
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .difficulty-info {
+      color: #475569;
+      margin-top: 0.75rem;
+      font-size: 1rem;
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .number-btn {
+      aspect-ratio: 1;
+      font-weight: bold;
+      font-size: 1.25rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      color: white;
+      background: rgb(98, 2, 161);
+      border-radius: 5px;
+    }
+
+    .number-btn:disabled {
+      background: #cbd5e1 !important;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .number-btn:not(:disabled):hover {
+      opacity: 0.9;
+    }
+
+    .question-view {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .question-card {
+      max-width: 56rem;
+      width: 100%;
+      background: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      border-left: 8px solid;
+    }
+
+    .question-card.easy {
+      border-color: #22c55e;
+    }
+
+    .question-card.medium {
+      border-color: #eab308;
+    }
+
+    .question-card.hard {
+      border-color: #ef4444;
+    }
+
+    .question-card.bonus {
+      border-color: #a855f7;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .difficulty-badge {
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .question-number {
+      background: #1e293b;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      font-size: 1.25rem;
+      border-radius: 5px;
+    }
+
+    .question-text {
+      margin-bottom: 2rem;
+    }
+
+    .question-text h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+
+    .answer-section {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .answer-section.hidden-answer {
+      background: #e2e8f0;
+      border: 2px dashed #94a3b8;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .answer-section.hidden-answer:hover {
+      background: #cbd5e1;
+    }
+
+    .answer-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #64748b;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .answer-text {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+
+    .close-btn {
+      width: 100%;
+      background: #1e293b;
+      color: white;
+      padding: 0.75rem;
+      font-weight: 600;
+      font-size: 1.125rem;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 5px;
+    }
+
+    .close-btn:hover {
+      background: #334155;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.875rem;
+      }
+
+      .question-text h2 {
+        font-size: 1.5rem;
+      }
+
+      .answer-text {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script>
+    const state = {
+      currentQuestion: null,
+      scores: {
+        'D&D': 0,
+        'Engineering': 0,
+        'Programming': 0
+      },
+      usedNumbers: new Set(),
+      view: 'home',
+      selectedDifficulty: null,
+      showAnswer: false,
+      blockTimer: null,
+      blockTimeLeft: 30,
+      questionTimer: null,
+      questionTimeLeft: 10,
+      timerPaused: false,
+      blockTimerDuration: 30
+    };
+
+    const questions = {
+      easy: [
+        { num: 1, q: "What does CAD mean in AutoCAD and KiCAD?", a: "Computer-aided design" },
+        { num: 2, q: "What is the electronics component type of an LED?", a: "Output" },
+        { num: 3, q: "What is the electronics component type of a generator?", a: "Power source" },
+        { num: 4, q: "What is the electronics component type of a joystick?", a: "Input" },
+        { num: 5, q: "This is a computer-aided design software made by Autodesk and is used for making 2D and 3D models.", a: "AutoCAD" },
+        { num: 6, q: "This is a computer-aided design software for making customized PCB layouts and schematic diagrams.", a: "KiCAD" },
+        { num: 7, q: "Recapping the water analogy for Electronics basic terminologies, which acts as the 'push' or water pressure in the pipe?", a: "Voltage" },
+        { num: 8, q: "Recapping the water analogy for Electronics basic terminologies, which acts as the volume of water that flows in the pipe?", a: "Current" },
+        { num: 9, q: "Recapping the water analogy for Electronics basic terminologies, which acts as the obstruction in the pipe?", a: "Resistance" },
+        { num: 10, q: "What does ESP stands for in ESP32?", a: "Espressif" },
+        { num: 11, q: "What does IoT stand for?", a: "Internet of Things" },
+        { num: 12, q: "What is the symbol of Current?", a: "I" },
+        { num: 13, q: "What is the symbol of Resistance?", a: "R" },
+        { num: 14, q: "What is the symbol of Voltage?", a: "V" },
+        { num: 15, q: "What is the programming language used for Arduino and ESP32?", a: "C++" },
+        { num: 16, q: "What does IDE stand for?", a: "Integrated Development Environment" },
+        { num: 17, q: "What is the IDE used for programming ESP32?", a: "Arduino IDE" },
+        { num: 18, q: "What microcontroller should be used for IoT projects?", a: "ESP32" },
+        { num: 19, q: "Beginner-friendly microcontroller used for simple robotics projects.", a: "Arduino" },
+        { num: 20, q: "A programmable computer used for robotics projects, it uses Python as its programming language.", a: "Raspberry Pi" },
+        { num: 21, q: "A subatomic particle with negative electrical charge.", a: "Electrons" },
+        { num: 22, q: "This acts as the brain of a circuit.", a: "Microcontroller" },
+        { num: 34, q: "Give at least one example of a power source.", a: "Answers may vary (e.g., Battery, Solar panel, Generator, Power supply)" },
+        { num: 36, q: "Give at least 2 types of an electronics component.", a: "Answers may vary (e.g., Input, Output, Power source, Process)" },
+        { num: 40, q: "Give an example of a sensor.", a: "Answers may vary (e.g., Temperature sensor, Ultrasonic sensor, Light sensor)" },
+        { num: 41, q: "Give at least one function of a sensor.", a: "Answers may vary (e.g., Detect environmental changes, Measure physical quantities)" },
+        { num: 45, q: "Why should a circuit have a power source?", a: "Answers may vary - should mention providing energy for components to function" },
+      ],
+      medium: [
+        { num: 23, q: "What is the difference between an ESP32 and Arduino?", a: "ESP32 has WiFi and Bluetooth built-in. Arduino has no built-in WiFi and Bluetooth." },
+        { num: 24, q: "__________ components allow circuits to react, __________ components allow circuits to interact with its environment.", a: "Input, Output" },
+        { num: 25, q: "Materials that allow electrons to move easily.", a: "Conductors" },
+        { num: 26, q: "What are the built-in functions that an ESP32 has and an Arduino does not have?", a: "WiFi and Bluetooth" },
+        { num: 27, q: "This role ensures that the robot can perform tasks and operate autonomously.", a: "Programmer" },
+        { num: 28, q: "This role bridges the hardware and the software by ensuring that the components can properly interface with the software.", a: "Engineer" },
+        { num: 29, q: "This role ensures to make and construct a safe, working, visually-appealing system.", a: "Designer" },
+        { num: 30, q: "What are the three advantages of using programmable circuits/computers?", a: "Flexibility, Reduced costs and complexity, Advanced functionality" },
+        { num: 35, q: "Give at least one advantage of programming a circuit compared to electronics-only.", a: "Answers may vary (e.g., Flexibility, Advanced functionality, Reduced complexity)" },
+        { num: 37, q: "What is an ESP32 microcontroller?", a: "Answers may vary - should mention WiFi/Bluetooth capabilities, IoT applications" },
+        { num: 38, q: "What is an Arduino microcontroller?", a: "Answers may vary - should mention beginner-friendly, simple robotics projects" },
+        { num: 39, q: "Explain the role of a microcontroller in a circuit.", a: "Answers may vary - should mention acting as the brain, controlling components" },
+        { num: 47, q: "What is a motor (in robotics) and give at least one function.", a: "Answers may vary - should mention converting electrical energy to mechanical motion" },
+      ],
+      hard: [
+        { num: 31, q: "Explain the role of the design and development (Designer).", a: "Answers may vary - should mention ensuring safe, working, visually-appealing system construction" },
+        { num: 32, q: "Explain the role of the Programmer.", a: "Answers may vary - should mention ensuring robot can perform tasks and operate autonomously" },
+        { num: 33, q: "Explain the role of the Engineer.", a: "Answers may vary - should mention bridging hardware and software, ensuring components interface properly" },
+        { num: 42, q: "Why should Environment of Use be considered when designing a robot?", a: "Answers may vary - should mention ensuring robot works properly in intended conditions" },
+        { num: 43, q: "Why should Purpose and Functionality be considered when designing a robot?", a: "Answers may vary - should mention ensuring robot fulfills intended tasks" },
+        { num: 44, q: "Why should Scalability be considered when designing a robot?", a: "Answers may vary - should mention future expansion and adaptation" },
+        { num: 46, q: "Which is easier: manual drafting (hand-drawn) or digital drafting (with AutoCAD)? Why?", a: "Answers may vary - should justify their choice" },
+      ],
+      bonus: [
+        { num: 48, q: "BONUS QUESTION: How did you gain interest in robotics?", a: "Personal answer - no specific answer required" },
+        { num: 49, q: "BONUS QUESTION: If you're given a chance to design only one robot in your whole lifetime, what would it be?", a: "Personal answer - no specific answer required" },
+        { num: 50, q: "BONUS QUESTION: What is the most memorable moment in your life anchored to robotics/programming/electronics?", a: "Personal answer - no specific answer required" },
+        { num: 51, q: "BONUS QUESTION: Should robots be designed to mimic human emotions, even if they don't literally feel them? Defend your answer.", a: "Personal answer - should provide reasoning" },
+        { num: 52, q: "BONUS QUESTION: What word springs to your mind when you hear the word 'robotics'?", a: "Personal answer - no specific answer required" },
+        { num: 53, q: "BONUS QUESTION: Could robots create a better future or the opposite? Explain.", a: "Personal answer - should provide reasoning" },
+        { num: 54, q: "BONUS QUESTION: Will robots eventually take over the world?", a: "Personal answer - should provide reasoning" },
+      ]
+    };
+
+    function startBlockTimer() {
+      state.blockTimeLeft = state.blockTimerDuration;
+      state.timerPaused = false;
+      clearInterval(state.blockTimer);
+
+      state.blockTimer = setInterval(() => {
+        if (!state.timerPaused && state.blockTimeLeft > 0) {
+          state.blockTimeLeft--;
+          render();
+
+          if (state.blockTimeLeft === 0) {
+            clearInterval(state.blockTimer);
+          }
+        }
+      }, 1000);
+      render();
+    }
+
+    function startQuestionTimer() {
+      state.questionTimeLeft = 10;
+      state.timerPaused = false;
+      clearInterval(state.questionTimer);
+
+      state.questionTimer = setInterval(() => {
+        if (!state.timerPaused && state.questionTimeLeft > 0) {
+          state.questionTimeLeft--;
+          render();
+
+          if (state.questionTimeLeft === 0) {
+            clearInterval(state.questionTimer);
+          }
+        }
+      }, 1000);
+      render();
+    }
+
+    function toggleTimer() {
+      state.timerPaused = !state.timerPaused;
+      render();
+    }
+
+    function resetTimer() {
+      if (state.currentQuestion) {
+        state.questionTimeLeft = 10;
+      } else if (state.view === 'home') {
+        state.blockTimeLeft = state.blockTimerDuration;
+      }
+      render();
+    }
+
+    function changeBlockDuration() {
+      const newDuration = prompt('Enter block pull duration in seconds:', state.blockTimerDuration);
+      if (newDuration !== null && !isNaN(newDuration) && newDuration > 0) {
+        state.blockTimerDuration = parseInt(newDuration);
+        state.blockTimeLeft = state.blockTimerDuration;
+        render();
+      }
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+
+      if (state.currentQuestion) {
+        app.innerHTML = renderQuestion();
+      } else if (state.view === 'difficulty' && state.selectedDifficulty) {
+        app.innerHTML = renderNumberSelection();
+      } else {
+        app.innerHTML = renderHome();
+      }
+    }
+
+    function renderHome() {
+      const totalQuestions = Object.values(questions).flat().length;
+
+      return `
+                <div class="container">
+                    <div class="header">
+                        <h1>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                            Stack Overflow
+                        </h1>
+                        <p>General Surface Knowledge About Robotics</p>
+                    </div>
+
+                    <div class="scoreboard">
+                        <div class="scoreboard-header">
+                            <h2 class="scoreboard-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                Scoreboard
+                            </h2>
+                            <button class="reset-btn" onclick="resetGame()">Reset Game</button>
+                        </div>
+                        
+                        <div class="teams">
+                            ${Object.entries(state.scores).map(([team, score]) => `
+                                <div class="team">
+                                    <h3>${team}</h3>
+                                    <div class="team-score">${score}</div>
+                                    <div class="team-buttons">
+                                        <button class="plus-btn" onclick="updateScore('${team}', 1)">+1</button>
+                                        <button class="minus-btn" onclick="updateScore('${team}', -1)">-1</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="game-stats">
+                            <span>Questions Used:</span>
+                            <span>${state.usedNumbers.size} / ${totalQuestions}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(10, 10, 30, 0.85); border: 2px solid rgba(0, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 255, 255, 0.2); padding: 2rem; margin-bottom: 2rem; border-radius: 15px; text-align: center;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                          <div style="font-size: 1rem; color: #a0d8ff; text-transform: uppercase; letter-spacing: 2px;">Time to Pull Block</div>
+                          <button onclick="changeBlockDuration()" style="background: #8b5cf6; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 5px; font-weight: 600; font-size: 0.875rem;">
+                              Set Duration (${state.blockTimerDuration}s)
+                          </button>
+                      </div>
+                      <div style="font-size: 4rem; font-weight: bold; color: ${state.blockTimeLeft <= 5 ? '#ef4444' : '#00ffff'}; text-shadow: 0 0 30px currentColor; margin-bottom: 1rem;">
+                          ${state.blockTimeLeft}s
+                      </div>
+                      <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                          <button onclick="toggleTimer()" style="background: #eab308; color: white; padding: 0.75rem 1.5rem; border: none; cursor: pointer; border-radius: 5px; font-weight: 600; font-size: 1rem;">
+                              ${state.timerPaused ? '▶ Resume' : '⏸ Pause'}
+                          </button>
+                          <button onclick="resetTimer()" style="background: #6366f1; color: white; padding: 0.75rem 1.5rem; border: none; cursor: pointer; border-radius: 5px; font-weight: 600; font-size: 1rem;">
+                              Reset to ${state.blockTimerDuration}s
+                          </button>
+                          <button onclick="startBlockTimer()" style="background: #16a34a; color: white; padding: 0.75rem 1.5rem; border: none; cursor: pointer; border-radius: 5px; font-weight: 600; font-size: 1rem;">
+                              ▶ Start Timer
+                          </button>
+                      </div>
+                  </div>
+
+
+                    <div class="difficulty-grid">
+                        ${Object.entries(questions).map(([difficulty, qs]) => {
+        const usedCount = qs.filter(q => state.usedNumbers.has(q.num)).length;
+        const icon = difficulty === 'bonus'
+          ? '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>'
+          : '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>';
+
+        return `
+                                <button class="difficulty-card ${difficulty}" onclick="selectDifficulty('${difficulty}')">
+                                    ${icon}
+                                    <h3>${difficulty}</h3>
+                                    <p>${qs.length} Questions</p>
+                                    <p class="used">${usedCount} used</p>
+                                </button>
+                            `;
+      }).join('')}
+                    </div>
+
+                    <div class="instructions">
+                        <h3>Game Instructions</h3>
+                        <p>
+                          The room will be divided based on departments and will have three representatives respectively. Each department will take turns to take out a block, wherein each block will have basic questions about Electronics, Programming, and D&D. If the department that took out a block gets the question correct, they get a point. Otherwise, the opposing departments can steal. 
+                          The department that topples the jenga tower will get a deduction (for the winning group not to topple the tower on purpose). 
+
+                          
+                        </p>
+                    </div>
+                </div>
+            `;
+    }
+
+    function renderNumberSelection() {
+      const difficultyQuestions = questions[state.selectedDifficulty];
+      const difficultyClass = state.selectedDifficulty;
+
+      return `
+                <div class="container number-selection">
+                    <div class="number-header">
+                        <button class="back-btn" onclick="backToHome()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            Back to Categories
+                        </button>
+                        <div class="difficulty-title ${difficultyClass}">
+                            ${state.selectedDifficulty} Questions
+                        </div>
+                        <p class="difficulty-info">
+                            ${difficultyQuestions.length} questions available • Select a number to reveal the question
+                        </p>
+                    </div>
+
+                    <div class="number-grid">
+                        ${difficultyQuestions.map(q => `
+                            <button 
+                                class="number-btn ${difficultyClass}" 
+                                onclick="selectNumber(${q.num})"
+                                ${state.usedNumbers.has(q.num) ? 'disabled' : ''}
+                            >
+                                ${q.num}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+    }
+
+    function renderQuestion() {
+      const q = state.currentQuestion;
+      const difficultyClass = q.difficulty;
+
+      return `
+                <div class="question-view">
+                    <div class="container">
+                        <div class="question-card ${difficultyClass}">
+                            <div class="question-header">
+                                <div class="difficulty-badge ${difficultyClass}">
+                                    ${q.difficulty}
+                                </div>
+                                <div class="question-number">
+                                    Question #${q.num}
+                                </div>
+                            </div>
+
+                            <div style="background: #f1f5f9; padding: 1.5rem; border-radius: 5px; margin-bottom: 2rem; text-align: center; border: 2px solid ${state.questionTimeLeft <= 3 ? '#ef4444' : '#e2e8f0'};">
+                                <div style="font-size: 0.875rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 600;">TIME REMAINING</div>
+                                <div style="font-size: 3.5rem; font-weight: bold; color: ${state.questionTimeLeft <= 3 ? '#ef4444' : '#1e293b'};">
+                                    ${state.questionTimeLeft}s
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
+                                    <button onclick="toggleTimer()" style="background: #eab308; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 5px; font-weight: 600;">
+                                        ${state.timerPaused ? '▶ Resume' : '⏸ Pause'}
+                                    </button>
+                                    <button onclick="resetTimer()" style="background: #6366f1; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 5px; font-weight: 600;">
+                                        🔄 Reset to 10s
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="question-text">
+                                <h2>${q.q}</h2>
+                            </div>
+
+                            <div class="answer-section ${!state.showAnswer ? 'hidden-answer' : ''}" onclick="revealAnswer()">
+                                ${state.showAnswer ? `
+                                    <p class="answer-label">Answer:</p>
+                                    <p class="answer-text">${q.a}</p>
+                                ` : `
+                                    <p class="answer-label">Click to reveal answer</p>
+                                    <p class="answer-text">🔒 Answer Hidden</p>
+                                `}
+                            </div>
+
+                            <button class="close-btn" onclick="closeQuestion()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                Back to Numbers
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+    }
+
+    function selectDifficulty(difficulty) {
+      clearInterval(state.blockTimer);
+      state.selectedDifficulty = difficulty;
+      state.view = 'difficulty';
+      render();
+    }
+
+    function selectNumber(num) {
+      clearInterval(state.blockTimer);
+      const question = questions[state.selectedDifficulty].find(q => q.num === num);
+      state.currentQuestion = { ...question, difficulty: state.selectedDifficulty };
+      state.usedNumbers.add(num);
+      state.showAnswer = false;
+      startQuestionTimer();
+      render();
+    }
+
+    function closeQuestion() {
+      clearInterval(state.questionTimer);
+      state.currentQuestion = null;
+      state.showAnswer = false;
+      render();
+    }
+
+    function revealAnswer() {
+      if (!state.showAnswer) {
+        state.showAnswer = true;
+        render();
+      }
+    }
+
+    function backToHome() {
+      clearInterval(state.blockTimer);
+      clearInterval(state.questionTimer)
+      state.selectedDifficulty = null;
+      state.view = 'home';
+      state.blockTimeLeft = state.blockTimerDuration;
+      render();
+    }
+
+    function updateScore(team, points) {
+      state.scores[team] = Math.max(0, state.scores[team] + points);
+      render();
+    }
+
+    function resetGame() {
+      if (confirm('Are you sure you want to reset the entire game? This will clear all scores and used numbers.')) {
+        state.scores = { 'D&D': 0, 'Engineering': 0, 'Programming': 0 };
+        state.usedNumbers = new Set();
+        state.currentQuestion = null;
+        state.view = 'home';
+        state.selectedDifficulty = null;
+        render();
+      }
+    }
+
+    // Initial render
+    render();
+  </script>
+</body>
+
+</html>
